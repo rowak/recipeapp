@@ -28,9 +28,13 @@ import io.github.rowak.recipeapp.net.RequestType;
 import io.github.rowak.recipeapp.net.Response;
 import io.github.rowak.recipeapp.net.ResponseType;
 import io.github.rowak.recipeapp.net.ServerRequest;
+import io.github.rowak.recipeapp.tools.IngredientSort;
 
 public class RecipeInfoActivity extends Activity
 	implements ServerRequest.ServerResponseListener {
+	private static String HTML_HEADER4_TAG_OPEN = "<h4>";
+	private static String HTML_HEADER4_TAG_CLOSE = "</h4>";
+	
 	private RecipeHeader recipeHeader;
 	private Recipe recipe;
 	private ServerRequest serverRequest;
@@ -145,7 +149,8 @@ public class RecipeInfoActivity extends Activity
 		
 		txtViewRecipeName.setText(recipeHeader.getName());
 		txtViewDescription.setText(recipeHeader.getDescription());
-		if (recipeHeader.getDescription() == null) {
+		String description = recipeHeader.getDescription();
+		if (description == null || (description != null && description.equals(""))) {
 			txtViewDescription.setText("No description");
 			txtViewDescription.setTypeface(null, Typeface.ITALIC);
 		}
@@ -186,7 +191,17 @@ public class RecipeInfoActivity extends Activity
 		StringBuilder sb = new StringBuilder();
 		int servings = getServings();
 		Ingredient[] ingredients = recipe.getIngredients();
+		IngredientSort.sortByCategory(ingredients);
+		if (ingredients[0].getCategory() != null) {
+			sb.append(HTML_HEADER4_TAG_OPEN +
+					ingredients[0].getCategory() + HTML_HEADER4_TAG_CLOSE);
+		}
 		for (int i = 0; i < ingredients.length; i++) {
+			if (i > 0 && !categoriesEqual(ingredients[i].getCategory(),
+					ingredients[i-1].getCategory())) {
+				sb.append(HTML_HEADER4_TAG_OPEN +
+						ingredients[i].getCategory() + HTML_HEADER4_TAG_CLOSE);
+			}
 			sb.append(ingredients[i].toString(servings,
 					recipe.getServings()));
 			if (i < ingredients.length-1) {
@@ -194,6 +209,12 @@ public class RecipeInfoActivity extends Activity
 			}
 		}
 		return sb.toString();
+	}
+	
+	private boolean categoriesEqual(String category1, String category2) {
+		return (category1 != null && category2 != null &&
+				category1.equals(category2)) ||
+				(category1 == null && category2 == null);
 	}
 	
 	private int getServings() {
