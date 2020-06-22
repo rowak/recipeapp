@@ -1,9 +1,12 @@
 package io.github.rowak.recipeapp;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
+import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -38,6 +41,9 @@ public class MainActivity extends AppCompatActivity {
 						.setAction("Action", null).show();
 			}
 		});
+		
+		setAppVersionOnUI();
+		
 		DrawerLayout drawer = findViewById(R.id.drawer_layout);
 		NavigationView navigationView = findViewById(R.id.nav_view);
 		// Passing each menu ID as a set of Ids because each
@@ -54,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
 	@Override
 	public void onResume() {
 		super.onResume();
-		System.out.println("RESUMED");
 	}
 	
 	@Override
@@ -69,5 +74,26 @@ public class MainActivity extends AppCompatActivity {
 		NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
 		return NavigationUI.navigateUp(navController, mAppBarConfiguration)
 				|| super.onSupportNavigateUp();
+	}
+	
+	private void setAppVersionOnUI() {
+		NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+		View hView = navigationView.getHeaderView(0);
+		TextView txtVersion = (TextView)hView.findViewById(R.id.txtAppVersion);
+		txtVersion.setText(getAppVersionName());
+	}
+	
+	private String getAppVersionName() {
+		try
+		{
+			PackageInfo pInfo = getPackageManager()
+					.getPackageInfo(getPackageName(), 0);
+			return "v" + pInfo.versionName;
+		}
+		catch (PackageManager.NameNotFoundException nnfe)
+		{
+			nnfe.printStackTrace();
+		}
+		return "";
 	}
 }
