@@ -19,6 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import io.github.rowak.recipeapp.models.Ingredient;
 import io.github.rowak.recipeapp.models.Recipe;
@@ -191,6 +192,7 @@ public class RecipeInfoActivity extends Activity
 		StringBuilder sb = new StringBuilder();
 		int servings = getServings();
 		Ingredient[] ingredients = recipe.getIngredients();
+		IngredientSort.sortByName(ingredients);
 		IngredientSort.sortByCategory(ingredients);
 		if (ingredients[0].getCategory() != null) {
 			sb.append(HTML_HEADER4_TAG_OPEN +
